@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: english-v2
+  labels:
+    app: english
+    version: v2
+spec:
+  selector:
+    matchLabels:
+      app: english
+      version: v2
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "true"
+      labels:
+        app: english
+        version: v2
+    spec:
+      containers:
+      - name: english-v2
+        image: quay.io/redhattraining/ossm-english:2.0
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+          - containerPort: 8080
+            name: http
+            protocol: TCP
+          - containerPort: 8778
+            name: jolokia
+            protocol: TCP
+          - containerPort: 9779
+            name: prometheus
+            protocol: TCP
+        livenessProbe:
+          exec:
+            command:
+              - "curl"
+              - localhost:8080/health
+          initialDelaySeconds: 3
+          periodSeconds: 5
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command:
+              - "curl"
+              - localhost:8080/health
+          initialDelaySeconds: 3
+          periodSeconds: 5
+          timeoutSeconds: 5
+        securityContext:
+          privileged: false

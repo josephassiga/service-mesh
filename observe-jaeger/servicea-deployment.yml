@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: servicea
+  labels:
+    app: servicea
+    version: v1
+spec:
+  selector:
+    matchLabels:
+      app: servicea
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: servicea
+        version: v1
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - name: servicea
+        image: docker.io/josephassiga/ossm-tracing-servicea:v1.0
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: servicea
+spec:
+  selector:
+    app: servicea
+  ports:
+  - name: http
+    port: 8080
+
+

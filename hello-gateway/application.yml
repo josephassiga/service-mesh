@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello
+  labels:
+    app: hello
+    version: v1
+spec:
+  selector:
+    matchLabels:
+      app: hello
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: hello
+        version: v1
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - name: hello
+        image: quay.io/redhattraining/ossm-maven-simplest:1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello
+spec:
+  selector:
+    app: xj2-mvp-caas
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: 8080

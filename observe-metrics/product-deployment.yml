@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product
+  labels:
+    app: product
+    version: v1
+spec:
+  selector:
+    matchLabels:
+      app: product
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: product
+        version: v1
+      annotations:
+        sidecar.istio.io/inject: "true"
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/scheme: "http"
+    spec:
+      containers:
+      - name: product
+        image: docker.io/josephassiga/ossm-metrics-product:v1.0
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: product
+spec:
+  selector:
+    app: product
+  ports:
+  - name: http
+    port: 8080
+
+
